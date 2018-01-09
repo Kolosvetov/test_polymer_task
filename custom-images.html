@@ -1,0 +1,150 @@
+<link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../neon-animation/web-animations.html">
+<link rel="import" href="../neon-animation/neon-animation.html">
+<link rel="import" href="../paper-dialog/paper-dialog.html">
+<link rel="import" href="../custom-selector.html">
+<dom-module id="custom-images">
+  <template>
+    <style>
+      :host {
+        display: flex;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        background-color: #2a2a2a;
+      }
+      :host > ::slotted(:not(slot):not(.selected):not(input):not(.controll):not(dom-repeat):not(paper-dialog)) {
+        display: none;
+        transition: opacity 0.5s ease-out 0s;
+      }
+      :host  > ::slotted(:not(slot):not(input):not(button)) {
+        height: 500px;
+        text-align: center;
+      }
+      :host .controll {
+        position: absolute;
+        top: 45%;
+        width: 32px;
+        height: 32px;
+        cursor: pointer;
+        background-repeat: no-repeat;
+        padding: 0;
+        margin: 0;
+      }
+      :host .controll.next {
+        right: 10px;
+        background-image: url(/img/controll/arrow-right.png);
+      }
+      :host .controll.prev {
+        left: 10px;
+        background-image: url(/img/controll/arrow-left.png);
+      }
+      :host .controll.zoom {
+        right: 10px;
+        top: 10px;
+        background-image: url(/img/controll/enlarge.png);
+      }
+      :host .controll.close {
+        right: 10px;
+        top: 10px;
+        background-image: url(/img/controll/shrink.png);
+      }
+      :host paper-dialog img{
+        padding: 0;
+        margin: 0;
+      }
+      :host paper-dialog {
+        background: none;
+        text-align: center;
+        right: 0;
+        bottom: 0;
+        top: 0;
+        left: 0;
+        position: fixed;
+      }
+    </style>
+    <slot name="el"></slot>
+    <div class="controll prev" on-click="prev"></div>
+    <div class="controll next" on-click="next"></div>
+    <div class="controll zoom" on-click="img_open"></div>
+
+    <paper-dialog dialog-dismiss id="dialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop><img style="width:[[img_width]]; height:[[img_height]];" src="[[img]]">
+    <div class="controll close" dialog-dismiss></div></paper-dialog>
+  </template>
+  <script>
+    Polymer({
+      is: 'custom-images',
+      behaviors: [
+        Polymer.CustomSelector,
+        Polymer.NeonAnimationRunnerBehavior
+      ],
+      properties : {
+        img: {
+          type: String,
+        },
+        oldSelected: {
+          type: Object,
+        },
+        opened: {
+          type: Boolean
+        },
+         animationConfig: {
+            value: function() {
+              return {
+                'entry': {
+                  name: 'scale-up-animation',
+                  node: this.selected
+                },
+                'exit': {
+                  name: 'fade-out-animation',
+                  node: this.oldSelected
+                }
+              }
+            }
+          }
+      },
+      listeners: {
+        'neon-animation-finish': '_onNeonAnimationFinish'
+      },
+      _onNeonAnimationFinish: function() {
+          if (this.oldSelected) {
+            this.oldSelected.style.display = 'none';
+          }
+          this.selected.style.display = 'block';
+          
+      },
+      img_open: function(){
+        this.$.dialog.open();
+        this.img = this.selected.lastElementChild.src;
+        if (this.selected.lastElementChild.width > this.selected.lastElementChild.height) {
+          this.img_width = "100%";
+          this.img_height = "auto";
+        } else {
+          this.img_width = "auto";
+          this.img_height = "100%";
+          var that = this;
+          setTimeout(function(){
+            if (that.$.dialog.offsetHeight != 0) {
+              that.img_height = that.$.dialog.offsetHeight+"px";
+            } else {
+              that.img_height = "100%";
+            }
+            
+          }, 2)
+          
+        }
+      },
+      _selectedImageChanged: function(selected, oldSelected) {
+        if (oldSelected) {
+          this.opened = false;
+          this.oldSelected = oldSelected;
+          this.oldSelected.style.opacity = 0;
+          this.playAnimation('exit');
+        }
+        this.opened = true;
+        this.playAnimation('entry');
+        this.selected.style.opacity = 1; 
+      },
+    });
+  </script>
+</dom-module>

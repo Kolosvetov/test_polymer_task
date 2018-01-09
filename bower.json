@@ -1,0 +1,25 @@
+{
+  "name": "test_polymer_task",
+  "homepage": "https://github.com/Kolosvetov/test_polymer_task",
+  "authors": [
+    "Kolosvetov <m.shadows.2011.01@gmail.com>"
+  ],
+  "description": "test_polymer_task",
+  "main": "custom-gallery.html",
+  "keywords": [
+    "polymer"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^2.0.0",
+    "web-animations-js": "^2.3.1",
+    "paper-dialog": "^2.0.1"
+  },
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

@@ -1,0 +1,117 @@
+<link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../custom-selector.html">
+<dom-module id="custom-thumbs">
+  <template>
+    <style>
+      :host {
+        display: block;
+        margin-top: 10px;
+        position: relative;
+      }
+      :host #container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 0.2fr));
+        grid-gap: 10px;
+        grid-auto-rows: 100px;
+        height: 100px;
+      }
+      .view-all#container {
+        height: auto;
+      }
+      :host #container ::slotted(.selected) {
+        opacity: 1 !important;
+        cursor: unset !important;
+      }
+      :host #container ::slotted(div) {
+        overflow: hidden;
+        background-size: cover;
+        opacity: 0.5;
+        cursor: pointer;
+      }
+      :host #container ::slotted(div::first-line) {
+        border: 1px solid red;
+      }
+      .view-all.btn-view-all {
+        display: none;
+      }
+      :host .btn-view-all {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100px;
+        height: 100px;
+        color: #fff;
+        background-color: rgba(0, 0, 0, 0.3);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+    </style>
+    <div id="container" on-click="handleClick">
+      <slot name="element"></slot>
+    </div>
+    <div id="btn_view_all" class="btn-view-all" on-click="handleClickView" style="width:{{viewAllWidth}}px;">{{itemsCount}}</div>
+  </template>
+  <script>
+    Polymer({
+      is: 'custom-thumbs',
+      behaviors: [
+        Polymer.CustomSelector
+      ],
+      properties: {
+        active: {
+          type: Number,
+          observer: '_selectedImageChangedByIndex'
+        },
+        viewAll: {
+          type: Boolean,
+          value: false,
+          observer: '_viewChange'
+        },
+        viewAllClass: {
+          type: String,
+          value: "view-all",
+        },
+        itemsCount: {
+          type: String,
+          value: "",
+        },
+        viewAllWidth: {
+          type: Number,
+          value: 0,
+        }
+      },
+      ready: function() {
+        this.selectView();
+        var that = this;
+
+        window.addEventListener("resize", function() { that.selectView(); });
+      },
+      handleClick: function(e) {
+        this.active = this.getIndexByValue(e.target);
+      },
+      handleClickView: function(e) {
+        this.viewAll = true;
+      },
+      selectView: function() {
+        var polymer_this = this;
+        setTimeout(function(){
+          var contWidth = polymer_this.offsetWidth;
+          var anyChildWidth = polymer_this.firstElementChild.offsetWidth;
+          var childsCount = Polymer.dom(polymer_this).queryDistributedElements('*').length;
+          if (Math.floor((contWidth / anyChildWidth)) < childsCount-1 && polymer_this.viewAll == false) {
+            polymer_this.viewAllWidth = anyChildWidth;
+            polymer_this.itemsCount = Math.floor((contWidth / anyChildWidth))+"+";
+            polymer_this.viewAll = false;
+          } else {
+            polymer_this.viewAll = true;
+          }
+        }, 1);
+      },
+      _viewChange: function() {
+        this.toggleClass(this.viewAllClass, this.viewAll, this.$.container);
+        this.toggleClass(this.viewAllClass, this.viewAll, this.$.btn_view_all);
+      }
+    });
+  </script>
+</dom-module>

@@ -1,0 +1,47 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-dialog/paper-dialog.html">
+<link rel="import" href="custom-images/custom-images.html">
+<link rel="import" href="custom-thumbs/custom-thumbs.html">
+<link rel="import" href="custom-selector/custom-selector.html">
+<dom-module id="custom-gallery">
+  <template>
+    <style>
+      :host #container {
+        width: 100%;
+        box-sizing: border-box;
+        overflow: hidden;
+      }
+      :host img {
+        height: 100%;
+      }
+    </style>
+    <div id="container">
+      <custom-images active="{{active}}">
+      <template is="dom-repeat" items="{{images_list}}">
+        <div slot="el"><img src="[[item]]"></div>
+      </template>
+      </custom-images>
+      <custom-thumbs active="{{active}}">
+        <template is="dom-repeat" items="{{images_list}}">
+          <div slot="element" style="background-image: url([[item]])"></div>
+        </template>
+      </custom-thumbs>
+    </div>
+  </template>
+  <script>
+        Polymer({
+          is: 'custom-gallery',
+          properties : {
+            active: {
+              type: Number
+            },
+            images_list: {
+              type: Array,
+              value() {
+                return [];
+              }
+            },
+          }
+        });
+  </script>
+</dom-module>

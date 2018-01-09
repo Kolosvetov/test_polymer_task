@@ -1,0 +1,69 @@
+<link rel="import" href="../polymer/polymer.html">
+<script>
+	Polymer.CustomSelector = {
+      properties: {
+        selected: {
+          type: Object,
+          observer: '_selectedImageChanged'
+        },
+        active: {
+          type: Number,
+          observer: '_selectedImageChangedByIndex',
+          notify: true
+        },
+        images_list: {
+          type: Array,
+          value() {
+            return [];
+          }
+        },
+      },
+      connectedCallback: function() {
+        this._resetSelected();
+      },
+      prev: function() {
+        const elem = this.selected && this.selected.previousElementSibling && this.selected.previousElementSibling !=this.lastElementChild;
+        if (elem) {
+      		this.active = this.getIndexByValue(this.selected.previousElementSibling);
+        } else {
+        	this.active = this.getIndexByValue(this.lastElementChild)-1;
+        }
+      },
+      next: function() {
+        const elem = this.selected && this.selected.nextElementSibling && this.selected.nextElementSibling != this.lastElementChild;
+        if (elem) {
+          	this.active = this.getIndexByValue(this.selected.nextElementSibling);
+        } else {
+       		this.active = 0;
+        }
+      },
+      getIndexByValue(value) {
+        var index = 0;
+        Polymer.dom(this).queryDistributedElements('*').forEach(function(item, i, arr) {
+          if (item == value) {
+            index = i;
+          }
+        });
+        return index;
+      },
+      getValueByIndex(index) {
+        var items = Polymer.dom(this).queryDistributedElements('*');
+        return items[index];
+      },
+      _selectedImageChanged: function(selected, oldSelected) {
+        this.toggleClass('selected', true, selected);
+        this.toggleClass('selected', false, oldSelected);
+      },
+      _selectedImageChangedByIndex: function(active) {
+      	this.selected = this.getValueByIndex(active);
+      },
+      _resetSelected() {
+        var that = this;
+        setTimeout(function(){
+          if (!that.selected || that.selected.parentElement !== that) {
+            that.selected = that.firstElementChild;
+          }
+        }, 0);
+      }
+	}
+</script>
