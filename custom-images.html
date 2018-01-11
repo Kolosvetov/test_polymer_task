@@ -33,21 +33,22 @@
       }
       :host .controll.next {
         right: 10px;
-        background-image: url(/img/controll/arrow-right.png);
+        background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAiklEQVRYhdXRwQ3AMAhDUfZfomzqXio1aSDkkNiqB+A/CbO/D4CrAQBwqQE6BPrxERjHRQQALiIB8BATAAdRAGrEwoEdyxEkQI4gAmIEGTAiBIAeIQK8CCHAlQBXvsCtnTROBoxxIiCO75g0vgA4Gy8A5+MTACeeAHjxAMCNfwD8eAPQxB+ALr5jNzbwrmuyuCyIAAAAAElFTkSuQmCC');
       }
       :host .controll.prev {
         left: 10px;
-        background-image: url(/img/controll/arrow-left.png);
+        background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAiElEQVRYhdXUwRGAIAxEUUq1/ybWkw4gSTiQ3bgF+N+MQGt/HoBLGgcAaVwC6ON0wBynAlZxGsCKUwBePB0QxVMBO/ETk8aXAGb8A2DHB4Ai/gJU8ToA+S8ocQhLXMMSDxEbYQJ2Ee4HTixCpAMiBAXgIWgAC0EFrBB0wIyQAHqEDPAgpIATuwEMyab5s9DQuQAAAABJRU5ErkJggg==');
+;
       }
       :host .controll.zoom {
         right: 10px;
         top: 10px;
-        background-image: url(/img/controll/enlarge.png);
+        background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAxElEQVRYhe2XOxbCMAwEdVRuZt9UNFRGn1mR92isNsvsFMFWzPXZloy7v1SYPVU+lVAE2vKJBBXA5aoEEZDLFQkisP4tMJIg5YqAJEHLM4FdAFqJ4rch9xTYAJRKVOVZxqLQRIKUR1nLQg2YyrZcq0IJnMoibpc54VS2zd25I8/n5aInIb87Bn9DehIiWROhKZzmzrwNoOEhU2RL7nkZLQD8Klckzkx0Ha9JOZGInt2t+G7FdytWP05/2YofESgl1HJ39zdEzBZ1//ZrLAAAAABJRU5ErkJggg==');
       }
       :host .controll.close {
         right: 10px;
         top: 10px;
-        background-image: url(/img/controll/shrink.png);
+        background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAA50lEQVRYhe2VMRLDMAgE9VT/TPopaewZRxxwCGtSxFcKjt3Ck7R2RkQOEeltcyDnfLwSSojIAd4GCf/mTI+hxLUP3qme4hgDeOy+awiEvSkjWujWEUfA7Sk4sdjRLBAwexBOSKgQAlYwPCuxKODDMxILAhx8owD3I8fAFwViCRZeELAlMvCigJbIwh8Q0BJv/js/+ghHSaIoMOZ+WqIggOFZiUUBH56RWBDg4BsF3n9DX8KBDzQjBGAPSnhwaycQMHtKgoGjY46A21MSxlAdmY8ZAmEPcqaheeR+DLxRPZNzDsMj1cycDwc2FnW2F4bNAAAAAElFTkSuQmCC');
       }
       :host paper-dialog img{
         padding: 0;
@@ -72,79 +73,81 @@
     <div class="controll close" dialog-dismiss></div></paper-dialog>
   </template>
   <script>
-    Polymer({
-      is: 'custom-images',
-      behaviors: [
-        Polymer.CustomSelector,
-        Polymer.NeonAnimationRunnerBehavior
-      ],
-      properties : {
-        img: {
-          type: String,
-        },
-        oldSelected: {
-          type: Object,
-        },
-        opened: {
-          type: Boolean
-        },
-         animationConfig: {
-            value: function() {
-              return {
-                'entry': {
-                  name: 'scale-up-animation',
-                  node: this.selected
-                },
-                'exit': {
-                  name: 'fade-out-animation',
-                  node: this.oldSelected
+      class CustomImages extends Polymer.mixinBehaviors([
+        Polymer.NeonAnimationRunnerBehavior, 
+        CustomSelector], Polymer.Element) {
+          static get is() { return "custom-images"; }
+          static get properties() {
+            return {
+              img: {
+                type: String,
+              },
+              oldSelected: {
+                type: Object,
+              },
+              opened: {
+                type: Boolean
+              },
+               animationConfig: {
+                  value: function() {
+                    return {
+                      'entry': {
+                        name: 'scale-up-animation',
+                        node: this.selected
+                      },
+                      'exit': {
+                        name: 'fade-out-animation',
+                        node: this.oldSelected
+                      }
+                    }
+                  }
                 }
+            };
+          }
+          connectedCallback() {
+            this.addEventListener('neon-animation-finish', this._onNeonAnimationFinish);
+            this._resetSelected();
+          }
+          _onNeonAnimationFinish() {
+              if (this.oldSelected) {
+                this.oldSelected.style.display = 'none';
               }
-            }
+              this.selected.style.display = 'block';
+              
           }
-      },
-      listeners: {
-        'neon-animation-finish': '_onNeonAnimationFinish'
-      },
-      _onNeonAnimationFinish: function() {
-          if (this.oldSelected) {
-            this.oldSelected.style.display = 'none';
-          }
-          this.selected.style.display = 'block';
-          
-      },
-      img_open: function(){
-        this.$.dialog.open();
-        this.img = this.selected.lastElementChild.src;
-        if (this.selected.lastElementChild.width > this.selected.lastElementChild.height) {
-          this.img_width = "100%";
-          this.img_height = "auto";
-        } else {
-          this.img_width = "auto";
-          this.img_height = "100%";
-          var that = this;
-          setTimeout(function(){
-            if (that.$.dialog.offsetHeight != 0) {
-              that.img_height = that.$.dialog.offsetHeight+"px";
+          img_open(){
+            this.$.dialog.open();
+            this.img = this.selected.lastElementChild.src;
+            if (this.selected.lastElementChild.width > this.selected.lastElementChild.height) {
+              this.img_width = "100%";
+              this.img_height = "auto";
             } else {
-              that.img_height = "100%";
+              this.img_width = "auto";
+              this.img_height = "100%";
+              var that = this;
+              setTimeout(function(){
+                if (that.$.dialog.offsetHeight != 0) {
+                  that.img_height = that.$.dialog.offsetHeight+"px";
+                } else {
+                  that.img_height = "100%";
+                }
+                
+              }, 2)
+              
             }
-            
-          }, 2)
-          
-        }
-      },
-      _selectedImageChanged: function(selected, oldSelected) {
-        if (oldSelected) {
-          this.opened = false;
-          this.oldSelected = oldSelected;
-          this.oldSelected.style.opacity = 0;
-          this.playAnimation('exit');
-        }
-        this.opened = true;
-        this.playAnimation('entry');
-        this.selected.style.opacity = 1; 
-      },
-    });
+          }
+          _selectedImageChanged(selected, oldSelected) {
+            if (oldSelected) {
+              this.opened = false;
+              this.oldSelected = oldSelected;
+              this.oldSelected.style.opacity = 0;
+              this.playAnimation('exit');
+            }
+            this.opened = true;
+            this.playAnimation('entry');
+            this.selected.style.opacity = 1; 
+          }
+    };
+    customElements.define(CustomImages.is, CustomImages);
   </script>
 </dom-module>

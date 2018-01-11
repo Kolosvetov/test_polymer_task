@@ -9,11 +9,10 @@
         position: relative;
       }
       :host #container {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(100px, 0.2fr));
-        grid-gap: 10px;
-        grid-auto-rows: 100px;
+        width: calc(100% + 10px);
+        margin-left: -5px;
         height: 100px;
+        overflow: hidden;
       }
       .view-all#container {
         height: auto;
@@ -27,10 +26,42 @@
         background-size: cover;
         opacity: 0.5;
         cursor: pointer;
+        height: 100px;
+        float: left;
+        width: calc(50% - 10px);
+        margin: 0 5px 10px;
       }
-      :host #container ::slotted(div::first-line) {
-        border: 1px solid red;
+
+      @media (min-width: 500px) {
+        :host #container ::slotted(div) {
+          width: calc(33.3333% - 10px);
+        }
       }
+
+      @media (min-width: 720px) {
+        :host #container ::slotted(div) {
+          width: calc(25% - 10px);
+        }
+      }
+
+      @media (min-width: 900px) {
+        :host #container ::slotted(div) {
+          width: calc(20% - 10px);
+        }
+      }
+
+      @media (min-width: 900px) {
+        :host #container ::slotted(div) {
+          width: calc(16.66666% - 10px);
+        }
+      }
+
+      @media (min-width: 1280px) {
+        :host #container ::slotted(div) {
+          width: calc(12.5% - 10px);
+        }
+      }
+
       .view-all.btn-view-all {
         display: none;
       }
@@ -53,65 +84,66 @@
     <div id="btn_view_all" class="btn-view-all" on-click="handleClickView" style="width:{{viewAllWidth}}px;">{{itemsCount}}</div>
   </template>
   <script>
-    Polymer({
-      is: 'custom-thumbs',
-      behaviors: [
-        Polymer.CustomSelector
-      ],
-      properties: {
-        active: {
-          type: Number,
-          observer: '_selectedImageChangedByIndex'
-        },
-        viewAll: {
-          type: Boolean,
-          value: false,
-          observer: '_viewChange'
-        },
-        viewAllClass: {
-          type: String,
-          value: "view-all",
-        },
-        itemsCount: {
-          type: String,
-          value: "",
-        },
-        viewAllWidth: {
-          type: Number,
-          value: 0,
-        }
-      },
-      ready: function() {
-        this.selectView();
-        var that = this;
-
-        window.addEventListener("resize", function() { that.selectView(); });
-      },
-      handleClick: function(e) {
-        this.active = this.getIndexByValue(e.target);
-      },
-      handleClickView: function(e) {
-        this.viewAll = true;
-      },
-      selectView: function() {
-        var polymer_this = this;
-        setTimeout(function(){
-          var contWidth = polymer_this.offsetWidth;
-          var anyChildWidth = polymer_this.firstElementChild.offsetWidth;
-          var childsCount = Polymer.dom(polymer_this).queryDistributedElements('*').length;
-          if (Math.floor((contWidth / anyChildWidth)) < childsCount-1 && polymer_this.viewAll == false) {
-            polymer_this.viewAllWidth = anyChildWidth;
-            polymer_this.itemsCount = Math.floor((contWidth / anyChildWidth))+"+";
-            polymer_this.viewAll = false;
-          } else {
-            polymer_this.viewAll = true;
+    class CustomThumbs extends Polymer.mixinBehaviors([CustomSelector], Polymer.Element) {
+          static get is() { return "custom-thumbs"; }
+          static get properties() {
+            return {
+              active: {
+                type: Number,
+                observer: '_selectedImageChangedByIndex'
+              },
+              viewAll: {
+                type: Boolean,
+                value: false,
+                observer: '_viewChange'
+              },
+              viewAllClass: {
+                type: String,
+                value: "view-all",
+              },
+              itemsCount: {
+                type: String,
+                value: "",
+              },
+              viewAllWidth: {
+                type: Number,
+                value: 0,
+              }
+            };
           }
-        }, 1);
-      },
-      _viewChange: function() {
-        this.toggleClass(this.viewAllClass, this.viewAll, this.$.container);
-        this.toggleClass(this.viewAllClass, this.viewAll, this.$.btn_view_all);
-      }
-    });
+          connectedCallback() {
+            this._resetSelected();
+            this.selectView();
+            var that = this;
+
+            window.addEventListener("resize", function() { that.selectView(); });
+          }
+          handleClick(e) {
+            this.active = this.getIndexByValue(e.target);
+          }
+          handleClickView(e) {
+            this.viewAll = true;
+          }
+          selectView() {
+            var polymer_this = this;
+            setTimeout(function(){
+              var contWidth = polymer_this.offsetWidth;
+              var anyChildWidth = polymer_this.firstElementChild.offsetWidth;
+              var childsCount = Polymer.dom(polymer_this).queryDistributedElements('*').length;
+              if (Math.floor((contWidth / anyChildWidth)) < childsCount-1 && polymer_this.viewAll == false) {
+                polymer_this.viewAllWidth = anyChildWidth;
+                polymer_this.itemsCount = Math.floor((contWidth / anyChildWidth))+"+";
+                polymer_this.viewAll = false;
+              } else {
+                polymer_this.viewAll = true;
+              }
+            }, 1);
+          }
+          _viewChange() {
+            this.toggleClass(this.viewAllClass, this.viewAll, this.$.container);
+            this.toggleClass(this.viewAllClass, this.viewAll, this.$.btn_view_all);
+          }
+    };
+    customElements.define(CustomThumbs.is, CustomThumbs);
   </script>
 </dom-module>

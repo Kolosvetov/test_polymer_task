@@ -29,19 +29,22 @@
     </div>
   </template>
   <script>
-        Polymer({
-          is: 'custom-gallery',
-          properties : {
-            active: {
-              type: Number
-            },
-            images_list: {
-              type: Array,
-              value() {
-                return [];
+      class CustomGallery extends Polymer.Element {
+          static get is() { return "custom-gallery"; }
+          static get properties() {
+            return {
+              active: {
+                type: Number
+              },
+              images_list: {
+                type: Array,
+                value() {
+                  return [];
+                }
               }
-            },
+            };
           }
-        });
+      };
+      customElements.define(CustomGallery.is, CustomGallery);
   </script>
 </dom-module>
